@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pranie Kasy | RP Crime</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #f1f1f1;
+      background: url('https://cdn.discordapp.com/attachments/1322737652515999795/1385232745155919952/gangi.png?ex=6859ef46&is=68589dc6&hm=cd8798fecf1440ffe89688c90b7c3209916e34dc9ef0cff2e8c4843f3d74423d&') no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: brightness(0.4);
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 350px auto;
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ff4444;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      background-color: #ff4444;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+    }
+
+    .result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 20px;
+      color: #00ff99;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pranie Brudnej Kasy</h1>
+    <input type="text" id="discordNick" placeholder="Wpisz swój nick Discord...">
+    <div id="moneyStep" style="display: none;">
+      <input type="number" id="dirtyMoney" placeholder="Wpisz kwotę brudnej kasy...">
+      <button onclick="launderMoney()">Przepierz kasę</button>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    const webhookURL = "https://discord.com/api/webhooks/1386658090971037726/I1XeyoNXGZfyEgS3NvDG1SWHa5q0leMHHqfNUfiJkROF93KDz-SSfOM_GXYoUXD2aR7l"; // <- Tutaj wstaw swój webhook
+
+    const discordNickInput = document.getElementById('discordNick');
+    const moneyStep = document.getElementById('moneyStep');
+
+    discordNickInput.addEventListener('input', () => {
+      if (discordNickInput.value.trim().length > 0) {
+        moneyStep.style.display = 'block';
+      } else {
+        moneyStep.style.display = 'none';
+      }
+    });
+
+    function launderMoney() {
+      const amountInput = document.getElementById('dirtyMoney');
+      const resultBox = document.getElementById('result');
+      const amount = parseFloat(amountInput.value);
+      const nick = discordNickInput.value.trim();
+
+      if (!nick || isNaN(amount) || amount <= 0) {
+        resultBox.textContent = "Wprowadź poprawne dane.";
+        resultBox.style.color = "#ff8888";
+        return;
+      }
+
+      const cleanMoney = Math.round(amount * 0.55); // 45% prowizji
+      resultBox.textContent = `Otrzymujesz $${cleanMoney} czystej kasy.`;
+      resultBox.style.color = "#00ff99";
+
+      // Wyślij log na Discord webhook
+      fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: "Pranie Kasy - Panel",
+          embeds: [
+            {
+              title: "Nowe pranie pieniędzy",
+              color: 16711680,
+              fields: [
+                { name: "Nick Discord:", value: nick },
+                { name: "Brudna kasa:", value: `$${amount}` },
+                { name: "Czysta kasa:", value: `$${cleanMoney}` }
+              ],
+              timestamp: new Date().toISOString()
+            }
+          ]
+        })
+      });
+    }
+  </script>
+</body>
+</html>
